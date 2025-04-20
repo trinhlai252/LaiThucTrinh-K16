@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-curl -o https://raw.githubusercontent.com/yinghaoz1/tmdb-movie-dataset-analysis/master/tmdb-movies.csv
+curl -O https://raw.githubusercontent.com/yinghaoz1/tmdb-movie-dataset-analysis/master/tmdb-movies.csv
 # 1. Sort theo relaese_date
 
 # Bước 1: Loại dòng lỗi dấu ngoặc kép không đóng
@@ -20,6 +20,7 @@ awk '{
 }' movies-clean.csv > temp && mv temp movies-clean.csv
 
 # Bước 3: Loại dòng có số cột khác 21
+#đã kiểm tra thấy có 3 hàng có số cột khác 21
 awk -F',' 'NF == 21' movies-clean.csv > temp && mv temp movies-clean.csv
 
 # Bước 4: Loại dòng có cột 16 rỗng
@@ -50,36 +51,52 @@ NR == 1 {print; next}
 
 # Bước 6: Sắp xếp theo release_date (cột 16) giảm dần
 csvsort -c 16 -r -d ',' movies-clean-date.csv > movies-sorted.csv
+echo "20 bộ phim đầu tiên theo ngày phát hành giảm dần: "
+cut -d',' -f6,16 movies-sorted.csv | column -t -s',' | head -n 20
+
+
 
 
 
 # 2. Câu hỏi: Lọc ra các bộ phim có đánh giá trung bình trên 7.5 rồi lưu ra một file mới
 awk -F',' 'NR==1 || $18+0 > 7.5' movies-sorted.csv > movies-over-7.5.csv
-
+echo " 10 bộ phim có điểm đánh giá > 7.5 (vote_average > 7.5) "
+cut -d',' -f6,18 movies-over-7.5.csv | column -t -s',' | head -n 11
 
 
 # 3. Câu hỏi: Phim có doanh thu cao nhất và thấp nhất
 
-tail -n +2 movies-sorted.csv | awk -F',' '$21+0 > 0' | sort -t',' -k21,21nr | head -n 1 | awk -F',' '{print "Highest:", $6, $21}' >> revenue.txt
-tail -n +2 movies-sorted.csv | awk -F',' '$21+0 > 0' | sort -t',' -k21,21n  | head -n 1 | awk -F',' '{print "Lowest:", $6, $21}'  >> revenue.txt
+echo "Phim có doanh thu cao nhất:"
+tail -n +2 movies-sorted.csv | awk -F',' '$21+0 > 0' | sort -t',' -k21,21nr | head -n 1 | awk -F',' '{print "Highest:", $6, $21}'
+
+echo "Phim có doanh thu thấp nhất"
+tail -n +2 movies-sorted.csv | awk -F',' '$21+0 > 0' | sort -t',' -k21,21n  | head -n 1 | awk -F',' '{print "Lowest:", $6, $21}'
 
 
 # 4. Câu hỏi: Top 10 bộ phim đem lại lợi nhuận cao nhất
 
 tail -n +2 movies-sorted.csv | awk -F',' '{profit = $21 - $20; print profit "," $6}' | sort -t',' -k1,1nr | head -n 10 > top-profit-movies.txt
+echo "Top 10 phim có lợi nhuận cao nhất:"
+cat top-profit-movies.txt
 
 
 
 # 5. Câu hỏi: Đạo diễn và diễn viên nào nhiều phim nhất
 
-cut -d',' -f9 movies-sorted.csv | tail -n +2 | tr '|' '\n' | sort | uniq -c | sort -nr | head -n 1 >> people-summary.txt
-cut -d',' -f7 movies-sorted.csv | tail -n +2 | tr '|' '\n' | grep -v '^$' | sort | uniq -c | sort -nr | head -n 1 >> people-summary.txt
+echo "Đạo diễn có nhiều phim nhất: "
+cut -d',' -f9 movies-sorted.csv | tail -n +2 | tr '|' '\n' | grep -v '^$' | sort | uniq -c | sort -nr | head -n 1
+echo "Diễn viên đóng nhiều phim nhất:"
+cut -d',' -f7 movies-sorted.csv | tail -n +2 | tr '|' '\n' | grep -v '^$' | sort | uniq -c | sort -nr | head -n 1
+
 
 
 
 # 6. Câu hỏi: Thống kê số lượng phim theo từng thể loại
 
-cut -d',' -f14 movies-sorted.csv | tail -n +2 | tr '|' '\n' | grep -v '^$' | sort | uniq -c | sort -nr > genre-count.txt
+echo "Thống kê số lượng phim theo từng thể loại:"
+cut -d',' -f14 movies-sorted.csv | tail -n +2 | tr '|' '\n' | grep -v '^$' | sort | uniq -c | sort -nr
+
+
 
 
 # 7. Ý tưởng mở rộng để phân tích dữ liệu
