@@ -1,9 +1,8 @@
 
 #!/bin/bash
 
-
+curl -o https://raw.githubusercontent.com/yinghaoz1/tmdb-movie-dataset-analysis/master/tmdb-movies.csv
 # 1. Sort theo relaese_date
-
 
 # Bước 1: Loại dòng lỗi dấu ngoặc kép không đóng
 grep -E '^([^"]*("[^"]*")?)*$' tmdb-movies.csv > movies-clean.csv
@@ -55,7 +54,6 @@ csvsort -c 16 -r -d ',' movies-clean-date.csv > movies-sorted.csv
 
 
 # 2. Câu hỏi: Lọc ra các bộ phim có đánh giá trung bình trên 7.5 rồi lưu ra một file mới
-###########################################
 awk -F',' 'NR==1 || $18+0 > 7.5' movies-sorted.csv > movies-over-7.5.csv
 
 
@@ -84,7 +82,6 @@ cut -d',' -f7 movies-sorted.csv | tail -n +2 | tr '|' '\n' | grep -v '^$' | sort
 cut -d',' -f14 movies-sorted.csv | tail -n +2 | tr '|' '\n' | grep -v '^$' | sort | uniq -c | sort -nr > genre-count.txt
 
 
-#####################################
 # 7. Ý tưởng mở rộng để phân tích dữ liệu
 
 # - Phân tích theo thể loại (genre): 
