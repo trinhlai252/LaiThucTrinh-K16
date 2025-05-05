@@ -10,7 +10,7 @@ import json
 df = pd.read_excel(r"D:\deproject\productid.xlsx")
 product_id = df.iloc[:, 0].dropna().astype(int).tolist()
 
-# Chia 1000 ID 1 lần
+# Chia 1000 ID 1
 def chunks(iterable, size):
     iterator = iter(iterable)
     for first in iterator:
