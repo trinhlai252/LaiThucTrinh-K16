@@ -9,7 +9,6 @@ import json
 
 df = pd.read_excel(r"D:\deproject\productid.xlsx")
 product_id = df.iloc[:, 0].dropna().astype(int).tolist()
-
 # Chia 1000 ID 1g
 def chunks(iterable, size):
     iterator = iter(iterable)
@@ -97,7 +96,6 @@ async def main():
             total_429 += count_429_in_group
 
     return total_success, total_429
-
 
 start_time = time.time()
 
